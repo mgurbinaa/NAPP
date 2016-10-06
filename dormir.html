@@ -1,0 +1,183 @@
+<html>
+<head>
+    <title>NAPP</title>
+    <meta charset="utf-8">
+    <link href="estilos.css" rel="stylesheet" type="text/css">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+</head>
+    <body class="bg1">
+        <div class="encabezado">
+            NAPP
+        </div>
+        <div class="tabs">
+            <button id="tabDormir" class="activo" onclick="irA('dormir')">DORMIR</button>
+            <button id="tabSiesta" onclick="irA('siesta')">SIESTA</button>
+        </div>
+        
+        <div class="contenido">
+            <button onclick="btnswitch('dormir')" id="dormir" class="switch izq switch-activo">DORMIR</button>
+            <button onclick="btnswitch('despertar')" id="despertar" class="switch der">DESPERTAR</button>
+            
+            <input type="time" placeholder="12:00 a.m." class="tiempo" id="horaDespertador" onchange="calcularDormir()">
+
+            <p id="textoHora">Ingresa una hora...</p>
+
+            <button class="boton">Colocar alarma</button>
+        </div>
+        
+        <div class="contenido2">
+            <input type="number" class="tiempo" id="tiempoSiesta">
+            
+            <p class="tiempoRestante">No hay una siesta programada</p>
+            <button class="boton" onclick="comenzarSiesta()">Comenzar</button>
+        </div>
+        
+        <audio id="alarma" loop>
+            <source src="alarma.mp3" type="audio/mp3">
+        </audio>
+        
+    </body>
+    
+    <script>
+        
+        var tipoActual = 'dormir';
+        function btnswitch(tipo)
+        {
+            document.getElementById(tipoActual).classList.remove('switch-activo');
+            document.getElementById(tipo).classList.add('switch-activo');
+            tipoActual = tipo;
+            if(tipo=="dormir")
+            {
+                document.querySelector('.bg1').classList.remove('bg2');
+                document.getElementById('horaDespertador').setAttribute('onchange', 'calcularDormir()');
+                document.getElementById('horaDespertador').value = "";
+            }
+            else
+            {
+                document.querySelector('.bg1').classList.add('bg2');
+                document.getElementById('horaDespertador').setAttribute('onchange', 'calcularDespertar()');
+                document.getElementById('horaDespertador').value = "";
+            }
+        }
+        
+        function irA(pagina)
+        {
+            if(pagina=="dormir")
+            {
+                document.querySelector('.contenido').style.transition="1s all";
+                document.querySelector('.contenido').style.left="0px";
+                document.querySelector('.contenido2').style.left="100%";
+                //CAMBIAR EL FOCO AL TAB
+                document.getElementById('tabDormir').classList.add('activo');
+                document.getElementById('tabSiesta').classList.remove('activo');
+            }
+            else
+            {
+                document.querySelector('.contenido').style.transition="1s all";
+                document.querySelector('.contenido').style.left="-100%";
+                document.querySelector('.contenido2').style.left="0px";
+                //CAMBIAR EL FOCO AL TAB
+                document.getElementById('tabSiesta').classList.add('activo');
+                document.getElementById('tabDormir').classList.remove('activo');
+            }
+        }
+
+        function calcularDormir()
+        {
+            //CALCULAR EL TIEMPO PARA DESPERTAR
+            h=document.getElementById('horaDespertador').value;
+            //JÓVENES ADULTOS (7 HORAS)
+            //CADENA.split('caracter', DELIMITADOR)
+            hora = h.split(':');
+            if(parseInt(hora[0])||hora[0]=="00")
+            {
+                horaDespertar= parseInt(hora[0]) + 7;
+                if(horaDespertar>=24)
+                {
+                    horaDespertar-=24;
+                }
+                document.getElementById('textoHora').innerHTML="Deberías despertar a las " + horaDespertar + ":" + hora[1] + " hrs.";
+            }
+            else
+            {
+                document.getElementById('textoHora').innerHTML= "Ingresa una hora...";
+            }
+            
+        }
+        
+        function calcularDespertar()
+        {
+            //CALCULAR EL TIEMPO PARA DESPERTAR
+            h=document.getElementById('horaDespertador').value;
+            //JÓVENES ADULTOS (7 HORAS)
+            hora = h.split(':');
+            if(parseInt(hora[0])||hora[0]=="00")
+            {
+                horaDormir= parseInt(hora[0]) - 7;
+                if(horaDormir<0)
+                {
+                    horaDormir+=24;
+                }
+                document.getElementById('textoHora').innerHTML="Deberías dormir a las " + horaDormir + ":" + hora[1] + " hrs.";
+            }
+            else
+            {
+                document.getElementById('textoHora').innerHTML= "Ingresa una hora...";
+            }
+        }
+        
+        function comenzarSiesta()
+        {
+            var tiempoSiesta = document.getElementById('tiempoSiesta').value;
+            calcularRestante(tiempoSiesta-1);
+        }
+        
+        var segundos = 59;
+        var segundosTranscurridos = 0;
+        
+        function calcularRestante(tiempoSiesta)
+        {
+            document.querySelector('.bg1').style.opacity=".1";
+            document.querySelector('.bg1').classList.add('oscuro');
+            if(segundosTranscurridos==0 && tiempoSiesta==-1)
+            {
+                document.querySelector('.bg1').style.opacity="1";
+                document.querySelector('.bg1').classList.remove('oscuro');
+                document.querySelector('.tiempoRestante').innerHTML = "No hay una siesta programada";
+                document.getElementById('alarma').play();
+                setTimeout(function(){sonar(alarma)}, 100);
+            }
+            else
+            {
+                segundosTranscurridos++;
+                //INCREMENTAMOS CUÁNTO TIEMPO TRANSCURRIÓ.
+                if(segundosTranscurridos==60)
+                {
+                    segundosTranscurridos=0;
+                    tiempoSiesta--;
+                }
+                if(tiempoSiesta>=0)
+                {
+                    segundosRestantes = segundos-segundosTranscurridos;            
+                    //IMPRIMIMOS EL CÁLCULO DE SEGUNDOS Y MINUTOS TRANSCURRIDOS
+                    if(segundosRestantes<10)
+                    {
+                        document.querySelector('.tiempoRestante').innerHTML = "Tiempo restante: " + tiempoSiesta + ":0" + segundosRestantes;   
+                    }
+                    else
+                    {
+                        document.querySelector('.tiempoRestante').innerHTML = "Tiempo restante: " + tiempoSiesta + ":" + segundosRestantes;
+                    }
+                }
+                //LAMAMOS UNA FUNCIÓN DESPUÉS DE UN TIEMPO ESTABLECIDO setTimeout(funcion, tiempo(ms));
+                setTimeout(function(){calcularRestante(tiempoSiesta)}, 100);
+            }
+        }
+        
+        function sonar(alarma)
+        {
+            document.getElementById('alarma').stop();
+        }
+    </script>
+    
+</html>
