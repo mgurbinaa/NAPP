@@ -183,3 +183,8 @@
     text-shadow: 0px 0px 10px white;
     transition: .5s all;
 }
+
+#iniciarSiesta
+{
+    z-index: 999;
+}

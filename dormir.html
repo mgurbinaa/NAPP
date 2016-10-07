@@ -28,8 +28,8 @@
         <div class="contenido2">
             <input type="number" class="tiempo" id="tiempoSiesta">
             
-            <p class="tiempoRestante">No hay una siesta programada</p>
-            <button class="boton" onclick="comenzarSiesta()">Comenzar</button>
+            <p class="tiempoRestante">No hay una siesta programada.</p>
+            <button class="boton" onclick="comenzarSiesta()" id="iniciarSiesta">Comenzar</button>
         </div>
         
         <audio id="alarma" loop>
@@ -130,22 +130,53 @@
         {
             var tiempoSiesta = document.getElementById('tiempoSiesta').value;
             calcularRestante(tiempoSiesta-1);
+            
         }
         
-        var segundos = 59;
+        function detenerAlarma()
+        {
+            document.getElementById('alarma').pause();
+            document.getElementById('iniciarSiesta').innerHTML="Comenzar";
+            document.getElementById('iniciarSiesta').setAttribute('onclick', 'comenzarSiesta()');
+            document.getElementById('tabDormir').style.visibility = 'visible';
+            document.getElementById('tabSiesta').style.visibility = 'visible';
+        }
+        
+        function restablecer()
+        {
+            document.getElementById('tiempoSiesta').innerHTML = "";
+            document.querySelector('.bg1').style.opacity="1";
+            document.querySelector('.bg1').classList.remove('oscuro');
+            document.querySelector('.tiempoRestante').innerHTML = "No hay una siesta programada.";
+            clearTimeout(contador);
+            document.getElementById('iniciarSiesta').innerHTML = "Comenzar";
+            document.getElementById('iniciarSiesta').setAttribute('onclick', 'comenzarSiesta()');
+            segundos = 60;
+            segundosTranscurridos = 0;
+            document.getElementById('tabDormir').style.visibility = 'visible';
+            document.getElementById('tabSiesta').style.visibility = 'visible';
+            
+        }
+        
+        var segundos = 60;
         var segundosTranscurridos = 0;
         
         function calcularRestante(tiempoSiesta)
         {
             document.querySelector('.bg1').style.opacity=".1";
             document.querySelector('.bg1').classList.add('oscuro');
+            document.getElementById('iniciarSiesta').innerHTML = "Detener conteo";
+            document.getElementById('iniciarSiesta').setAttribute('onclick', 'restablecer()');
+            document.getElementById('tabDormir').style.visibility = 'hidden';
+            document.getElementById('tabSiesta').style.visibility = 'hidden';
             if(segundosTranscurridos==0 && tiempoSiesta==-1)
             {
                 document.querySelector('.bg1').style.opacity="1";
                 document.querySelector('.bg1').classList.remove('oscuro');
-                document.querySelector('.tiempoRestante').innerHTML = "No hay una siesta programada";
+                document.querySelector('.tiempoRestante').innerHTML = "No hay una siesta programada.";
                 document.getElementById('alarma').play();
-                setTimeout(function(){sonar(alarma)}, 100);
+                document.getElementById('iniciarSiesta').innerHTML = "Detener alarma";
+                document.getElementById('iniciarSiesta').setAttribute('onclick', 'detenerAlarma()');
             }
             else
             {
@@ -170,13 +201,8 @@
                     }
                 }
                 //LAMAMOS UNA FUNCIÓN DESPUÉS DE UN TIEMPO ESTABLECIDO setTimeout(funcion, tiempo(ms));
-                setTimeout(function(){calcularRestante(tiempoSiesta)}, 100);
+                contador = setTimeout(function(){calcularRestante(tiempoSiesta)}, 1000);
             }
-        }
-        
-        function sonar(alarma)
-        {
-            document.getElementById('alarma').stop();
         }
     </script>
     
